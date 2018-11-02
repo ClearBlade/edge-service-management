@@ -2,7 +2,7 @@
 ## Assumptions
 ## 1. Needs 'curl' if downloading & installing the edge.
 ## 2. Assumes Edge Binary exists in '/usr/local/bin/' as 'edge'
-## 3. If downloading and installing edge binary, perform step 3 (Uncomment)
+## 3. If downloading and installing edge binary, perform step 2 (Uncomment)
 ##    Perform Step 6
 
 echo "Setting Configurations..."
@@ -13,8 +13,8 @@ RELEASE="4.3.0"
 #---------Edge Configuration---------
 EDGE_COOKIE="<EDGE_COOKIE>" #Cookie from Edge Config Screen
 EDGE_ID="<EDGE_ID>" #Edge Name when Created in the system
-PARENT_SYSTEM="<PARENT_SYSTEM_KEY" #System Key of the application to connect
-PLATFORM_HOST_NAME="<PLATFORM_URL" #FQDN Hostname to Connect
+PARENT_SYSTEM="<PARENT_SYSTEM_KEY>" #System Key of the application to connect
+PLATFORM_HOST_NAME="<PLATFORM_URL>" #FQDN Hostname to Connect
 
 #---------WORKDIR-------------
 WORK_DIR="/home/pi"
@@ -55,8 +55,32 @@ echo "1. Installing Prereqs Skipping..."
 echo "2. Download and Install Edge, Skipping"
 ## Uncomment if needed
 
+#######################################################
 #---------Ensure your architecture is correct----------
-#ARCHITECTURE="edge-linux-armv7.tar.gz"
+#######################################################
+#MACHINE_ARCHITECTURE="$(uname -m)"
+#MACHINE_OS="$(uname)"
+#echo "Machine Architecture: $MACHINE_ARCHITECTURE"
+#if [ "$MACHINE_ARCHITECTURE" == "armv5tejl" ] ; then
+#  ARCHITECTURE="edge-linux-armv5tejl.tar.gz"
+#elif [ "$MACHINE_ARCHITECTURE" == "armv6l" ] ; then
+#  ARCHITECTURE="edge-linux-armv6.tar.gz"
+#elif [ "$MACHINE_ARCHITECTURE" == "armv7l" ] ; then
+#  ARCHITECTURE="edge-linux-armv7.tar.gz"
+#elif [ "$MACHINE_ARCHITECTURE" == "armv8" ] ; then
+#  ARCHITECTURE="edge-linux-arm64.tar.gz"
+#elif [ "$MACHINE_ARCHITECTURE" == "i686" ] ||  [ "$MACHINE_TYPE" == "i386" ] ; then
+#  ARCHITECTURE="edge-linux-386.tar.gz"
+#elif [ "$MACHINE_ARCHITECTURE" == "x86_64" ] && [ "$MACHINE_OS" == "Darwin" ] ; then
+#  ARCHITECTURE="edge-darwin-amd64.tar.gz" 
+#elif [ "$MACHINE_ARCHITECTURE" == "x86_64" ] && [ "$MACHINE_OS" == "Linux" ] ; then
+#  ARCHITECTURE="edge-linux-amd64.tar.gz"
+#else 
+#  echo "---------Unknown Architecture Error---------"
+#    echo "STOPPING: Validate Architecture of OS"
+#    echo "-----------------------------------"
+#  exit
+#fi
 
 #-----------Downloading Edge-----------
 # echo "https://github.com/ClearBlade/Edge/releases/download/$RELEASE/$ARCHITECTURE"
