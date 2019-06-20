@@ -115,7 +115,7 @@ After=network.target
 Type=simple
 User=root
 ExecStart=$EDGE_BIN -log-level=$LOG_LEVEL -novi-ip=$PLATFORM_HOST_NAME -parent-system=$PARENT_SYSTEM -edge-ip=localhost -edge-id=$EDGE_ID -edge-cookie=$EDGE_COOKIE $DATASTORE
-Restart=on-abort
+Restart=always
 TimeoutSec=30
 RestartSec=30
 StartLimitInterval=350
