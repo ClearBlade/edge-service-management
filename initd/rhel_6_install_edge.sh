@@ -6,11 +6,25 @@ function usage() {
   local invalid_option=$3
   local invalid_argument=$4
 
-  local help="Usage: clearblade.sh [OPTIONS]
+  local help="Usage: sudo ./rhel_6_install_edge.sh [OPTIONS]
 
 Used to create a init.d script to startup and destroy an edge
 
-Assumptions: /usr/local/bin/edge exists
+Assumptions: 
+/usr/local/bin/edge exists
+TODO: Run it as a user, right now it runs as root.
+TODO: Find out the best way to store the pid in the pidfile and thus be able to using the /etc/init.d/functions in a better way
+
+Notes:
+- Stores db in /var/lib/clearblade/
+- Stores logs in /var/log/edge
+- Stores Adapters in /var/lib/adapters
+- Add/Del enable/disables the serivice using `chkconfig` command provided by `rhel 6.0`
+- The init service uses `daemon` command
+
+
+Attention: 
+This setup script wipes all the existing services|databases|adapters|
 
 Example: sudo ./rhel_6_install_edge.sh --platform-ip 'cn.clearblade.com' --parent-system '8ecae4e30b908das88b4feb3db14' --edge-ip 'localhost' --edge-id 'some-edge' --edge-cookie 'sd1474594aafeffads4V42Ebt'
 
@@ -48,6 +62,7 @@ Options (* indicates it is required):
   return
 }
 
+## TODO add checks
 ALL_ARGS=("platform-ip" "parent-system" "edge-ip" "edge-id" "edge-cookie")
 REQ_ARGS=("platform-ip" "parent-system" "edge-ip" "edge-id" "edge-cookie")
 
@@ -88,7 +103,7 @@ case $key in
 esac
 done
 
-echo "-------------inputs-check-----------"
+echo "-------------1. inputs-check-----------"
 echo "platform_ip: $platform_ip"
 echo "parent_system: $parent_system"
 echo "edge_ip: $edge_ip"
@@ -103,7 +118,7 @@ INITDSERVICENAME="clearblade"
 SERVICENAME="ClearBlade Edge Service"
 
 #---------Check Init.d Configuration---------
-echo "---------------Check Init.d Config---------"
+echo "---------2. init.d config check---------"
 echo "INITDPATH: $INITDPATH"
 echo "INITDSERVICENAME: $INITDSERVICENAME"
 echo "SERVICENAME: $SERVICENAME"
@@ -118,7 +133,7 @@ ADAPTERS_ROOT_DIR=$VARPATH
 EDGEBIN="$BINPATH/edge"
 
 #---------Check File system settings for edge----------
-echo "---------------Check File system settings for edge-------"
+echo "-----------3. edge file-sys settings check-------"
 echo "BINPATH: $BINPATH"
 echo "VARPATH: $VARPATH"
 echo "EDGEDBPATH: $EDGEDBPATH"
@@ -237,7 +252,7 @@ EnableLogFileWriter = false # (bool) turn on/off writing triage messages to log 
 
 EOF
 
-echo -------Cleaning old init.d services, binaries, adapters & databases------
+echo -------clean old init.d services, binaries, adapters & databases------
 service $INITDSERVICENAME stop
 # update-rc.d -f $INITDSERVICENAME remove
 chkconfig $INITDSERVICENAME off
