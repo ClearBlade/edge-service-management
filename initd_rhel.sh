@@ -96,13 +96,15 @@ case $key in
 esac
 done
 
-
+## Step counter
+## $((i+=1))
+i=0
 
 #---------Init.d Configuration---------
 INITDPATH="/etc/init.d"
 INITDDEFAULTPATH="/etc/default"
 INITDSERVICENAME=$service_name
-SERVICENAME=$display_name
+SERVICE_NAME_DISPLAYED=$display_name
 EDGE_CONFIG_FILE=${config_file-"/etc/clearblade/config.toml"}
 
 
@@ -115,7 +117,7 @@ ADAPTERS_ROOT_DIR=$VARPATH
 echo "---------2. init.d config check---------"
 echo "INITDPATH: $INITDPATH"
 echo "INITDSERVICENAME: $INITDSERVICENAME"
-echo "SERVICENAME: $SERVICENAME"
+echo "SERVICENAME DISPLAYED: $SERVICE_NAME_DISPLAYED"
 
 echo -------clean old init.d services, binaries, adapters & databases------
 service $INITDSERVICENAME stop
@@ -141,7 +143,7 @@ cat >$INITDSERVICENAME <<EOF
 # Required-Stop:      \$network \$local_fs \$syslog \$remote_fs \$named \$portmap
 # Default-Start:      2 3 4 5
 # Default-Stop:       0 1 6
-# Short-Description:  $SERVICENAME
+# Short-Description:  $SERVICE_NAME_DISPLAYED
 ### END INIT INFO
 
 
@@ -157,7 +159,7 @@ EDGE_FLAGS="-config=\$EDGE_CONFIG_FILE"
 lockfile=/var/lock/subsys/$INITDSERVICENAME
 
 start() {
-    echo -n "Starting $SERVICENAME: "
+    echo -n "Starting $SERVICE_NAME_DISPLAYED: "
     daemon --pidfile=\$EDGE_PIDFILE \$EDGE -config=\$EDGE_CONFIG_FILE & 
     retval=\$?
     if [ \$retval -eq 0 ]; then
