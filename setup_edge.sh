@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 function usage() {
   local just_help=$1
@@ -6,14 +7,13 @@ function usage() {
   local invalid_option=$3
   local invalid_argument=$4
 
-  local help="Usage: sudo ./rhel_6_install_edge.sh [OPTIONS]
+  local help="Usage: sudo ./setup_edge.sh [OPTIONS]
 
 Used to create a init.d script to startup and destroy an edge
 
 Assumptions: 
 /usr/local/bin/edge exists
 TODO: Run it as a user, right now it runs as root.
-TODO: Find out the best way to store the pid in the pidfile and thus be able to using the /etc/init.d/functions in a better way
 
 Notes:
 - Stores db in /var/lib/clearblade/
@@ -24,7 +24,7 @@ Notes:
 
 
 Attention: 
-This setup script wipes all the existing services|databases|adapters|
+This setup script updates the existing service
 
 Example: sudo ./rhel_6_install_edge.sh --platform-ip 'cn.clearblade.com' --parent-system '8ecae4e30b908das88b4feb3db14' --edge-ip 'localhost' --edge-id 'some-edge' --edge-cookie 'sd1474594aafeffads4V42Ebt'
 
@@ -103,7 +103,9 @@ case $key in
 esac
 done
 
-echo "-------------1. inputs-check-----------"
+i=0
+
+echo "----- $((i+=1)). inputs-check-----"
 echo "platform_ip: $platform_ip"
 echo "parent_system: $parent_system"
 echo "edge_ip: $edge_ip"
@@ -114,31 +116,36 @@ echo "edge_cookie: $edge_cookie"
 
 #----------FILESYSTEM SETTINGS FOR EDGE
 BINPATH=/usr/local/bin
-VARPATH=/var/lib
-EDGEDBPATH=$VARPATH/clearblade
-ADAPTERS_ROOT_DIR=$VARPATH
+CBVARPATH=/var/lib/clearblade
+EDGEDBDIR=$CBVARPATH/db
+EDGEDBPATH=$EDGEDBDIR/edge.db
+ADAPTERS_ROOT_DIR=$CBVARPATH
 
 #---------Edge Settings---------
-EDGEBIN="$BINPATH/edge"
 
 #---------Check File system settings for edge----------
-echo "-----------3. edge file-sys settings check-------"
+echo "----- $((i+=1)). edge file-sys settings check-----"
 echo "BINPATH: $BINPATH"
 echo "VARPATH: $VARPATH"
+echo "EDGEDBDIR: $EDGEDBDIR"
 echo "EDGEDBPATH: $EDGEDBPATH"
 echo "ADAPTERS_ROOT_DIR: $ADAPTERS_ROOT_DIR"
-echo "EDGEBIN: $EDGEBIN"
 
 #---------Setup the edge-config file------
 CONFIG_ROOT=/etc/clearblade
 EDGE_CONFIG_FILE=$CONFIG_ROOT/config.toml
 EDGE_LOG_FILE=/var/log/edge
 #---------Check Setup for the edge-config file----------
-echo "-----------Check Setup for the edge-config file-------"
+echo "----- $((i+=1)). Check Setup for the edge-config file-----"
 echo "CONFIG_ROOT: $CONFIG_ROOT"
 echo "EDGE_CONFIG_FILE: $EDGE_CONFIG_FILE"
-echo "EDGE_LOG_FILE: $EGDE_LOG_FILE"
+echo "EDGE_LOG_FILE: $EDGE_LOG_FILE"
+
+echo "----- $((i+=1)). Creating Directories if Missing-----"
+
 mkdir -p $CONFIG_ROOT
+mkdir -p $EDGEDBDIR
+mkdir -p $ADAPTERS_ROOT_DIR
 
 cat >$EDGE_CONFIG_FILE <<EOF
 Title = "ClearBlade Edge Configuration File"
@@ -188,8 +195,8 @@ DBHost = "127.0.0.1" # (string) Address of the database server
 DBPort = "5432" # (string) Database port
 DBUsername = "cbuser" # (string) Username for connecting to the database
 DBPassword = "ClearBlade2014" # (string) Password for connecting to the database
-SqliteAdmin = "$EDGEDBPATH/edge.db" # (string) Location for storing sqlite admin database file
-SqliteUserdata = "$EDGEDBPATH/edgeusers.db" # (string) Location for storing sqlite admin database file
+DBType = "sqlite"
+SqliteAdmin = "$EDGEDBPATH" # (string) Location for storing sqlite admin database file
 Local = false # (boolean) Use only local cache for storage. Used only for development
 
 [Debug]
@@ -240,3 +247,5 @@ TriageIntervalMinutes = 1  # (int) How often in minutes to report triage informa
 EnableLogFileWriter = false # (bool) turn on/off writing triage messages to log file (default off)
 
 EOF
+
+echo "----- $((i+=1)). Config Created Successfully-----"
