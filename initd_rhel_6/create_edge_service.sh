@@ -26,9 +26,9 @@ Notes:
 
 
 Attention: 
-This setup script recreates the existing service
+This setup script wipes all the existing services|databases|adapters|
 
-Example: `./initd_rhel.sh --display-name "ClearBlade Edge Service" --service-name "clearblade_edge" --config "/etc/clearblade/config.toml" --prog "/usr/local/bin/edge" --reset-db "true"`
+Example: `./initd_rhel.sh --display-name "ClearBlade Edge Service" --service-name "clearblade_edge" --config "/etc/clearblade/edge_config.toml" --prog "/usr/bin/edge" --reset-db "true"`
 
 Options (* indicates it is required):
         --display-name string      [Long description of the Service Name]
@@ -114,10 +114,9 @@ SERVICE_NAME_DISPLAYED=$display_name
 EDGE_CONFIG_FILE=${config_file-"/etc/clearblade/config.toml"}
 EDGE_BIN_PATH=${bin_path-"/usr/local/bin/edge"}
 #--------Edge Paths----
-CBVARPATH=/var/lib/clearblade
-EDGEDBDIR=$CBVARPATH/db
-EDGEDBPATH=$EDGEDBDIR/edge.db
-ADAPTERS_ROOT_DIR=$CBVARPATH
+VARPATH=/var/lib
+EDGEDBPATH=$VARPATH/clearblade/edge.db
+ADAPTERS_ROOT_DIR=$VARPATH
 
 #---------Check Init.d Configuration---------
 echo "----- $((i+=1)). init.d config check------"
