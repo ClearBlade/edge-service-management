@@ -17,7 +17,7 @@ TODO: Run it as a user, right now it runs as root.
 
 Notes:
 - Stores db in /var/lib/clearblade/
-- Stores logs in /var/log/edge
+- Stores logs in /var/log/edge.log
 - Stores Adapters in /var/lib/adapters
 - Add/Del enable/disables the serivice using `chkconfig` command provided by `rhel 6.0`
 - The init service uses `daemon` command
@@ -63,8 +63,8 @@ Options (* indicates it is required):
 }
 
 ## TODO add checks
-ALL_ARGS=("platform-ip" "parent-system" "edge-ip" "edge-id" "edge-cookie")
-REQ_ARGS=("platform-ip" "parent-system" "edge-ip" "edge-id" "edge-cookie")
+ALL_ARGS=("platform_ip" "parent_system" "edge_ip" "edge_id" "edge_cookie" )
+REQ_ARGS=("platform_ip" "parent_system" "edge_ip" "edge_id" "edge_cookie" )
 
 # get command line arguments
 while [[ $# -gt 0 ]]
@@ -103,16 +103,31 @@ case $key in
 esac
 done
 
-i=0
+for i in "${REQ_ARGS[@]}"; do
+  # $i is the string of the variable name
+  # ${!i} is a parameter expression to get the value
+  # of the variable whose name is i.
+  req_var=${!i}
+  if [ "$req_var" == "" ]
+  then
+    usage "" "--$i"
+    exit
+  fi
+done
 
-echo "----- $((i+=1)). inputs-check-----"
-echo "platform_ip: $platform_ip"
-echo "parent_system: $parent_system"
-echo "edge_ip: $edge_ip"
-echo "edge_id: $edge_id"
-echo "edge_cookie: $edge_cookie"
+script_name="${0}"
+j=0
 
+echo -e "\n----- $script_name-----\n"
+echo -e "\n----- $((++j)). inputs-check-----\n"
 
+for i in "${ALL_ARGS[@]}"; do
+  # $i is the string of the variable name
+  # ${!i} is a parameter expression to get the value
+  # of the variable whose name is i.
+  var_val=${!i}
+  echo "$i:\"$var_val\""
+done
 
 #----------FILESYSTEM SETTINGS FOR EDGE
 BINPATH=/usr/local/bin
@@ -120,32 +135,29 @@ CBVARPATH=/var/lib/clearblade
 EDGEDBDIR=$CBVARPATH/db
 EDGEDBPATH=$EDGEDBDIR/edge.db
 ADAPTERS_ROOT_DIR=$CBVARPATH
-
-#---------Edge Settings---------
-
-#---------Check File system settings for edge----------
-echo "----- $((i+=1)). edge file-sys settings check-----"
-echo "BINPATH: $BINPATH"
-echo "VARPATH: $VARPATH"
-echo "EDGEDBDIR: $EDGEDBDIR"
-echo "EDGEDBPATH: $EDGEDBPATH"
-echo "ADAPTERS_ROOT_DIR: $ADAPTERS_ROOT_DIR"
-
 #---------Setup the edge-config file------
 CONFIG_ROOT=/etc/clearblade
 EDGE_CONFIG_FILE=$CONFIG_ROOT/config.toml
-EDGE_LOG_FILE=/var/log/edge
-#---------Check Setup for the edge-config file----------
-echo "----- $((i+=1)). Check Setup for the edge-config file-----"
+EDGE_LOG_FILE=/var/log/edge.log
+
+#---------Log Edge Settings---------
+
+#---------Check File system settings for edge----------
+echo -e "\n----- $((++j)). edge file-sys settings check-----\n"
+echo "BINPATH: $BINPATH"
+echo "CBVARPATH: $CBVARPATH"
+echo "EDGEDBDIR: $EDGEDBDIR"
+echo "EDGEDBPATH: $EDGEDBPATH"
+echo "ADAPTERS_ROOT_DIR: $ADAPTERS_ROOT_DIR"
 echo "CONFIG_ROOT: $CONFIG_ROOT"
 echo "EDGE_CONFIG_FILE: $EDGE_CONFIG_FILE"
 echo "EDGE_LOG_FILE: $EDGE_LOG_FILE"
 
-echo "----- $((i+=1)). Creating Directories if Missing-----"
+echo -e "\n----- $((++j)). Creating Directories if Missing-----\n"
 
 mkdir -p $CONFIG_ROOT
-mkdir -p $EDGEDBDIR
 mkdir -p $ADAPTERS_ROOT_DIR
+mkdir -p $EDGEDBDIR
 
 cat >$EDGE_CONFIG_FILE <<EOF
 Title = "ClearBlade Edge Configuration File"
@@ -248,4 +260,4 @@ EnableLogFileWriter = false # (bool) turn on/off writing triage messages to log 
 
 EOF
 
-echo "----- $((i+=1)). Config Created Successfully-----"
+echo -e "\n----- $((++j)). Config Created Successfully, stored at location: $EDGE_CONFIG_FILE -----\n"
