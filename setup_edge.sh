@@ -26,7 +26,7 @@ Notes:
 Attention: 
 This setup script updates the existing service
 
-Example: sudo ./rhel_6_install_edge.sh --platform-ip 'cn.clearblade.com' --parent-system '8ecae4e30b908das88b4feb3db14' --edge-ip 'localhost' --edge-id 'some-edge' --edge-cookie 'sd1474594aafeffads4V42Ebt'
+Example: sudo ./setup_edge.sh --platform-ip 'platfrom.clearblade.com' --parent-system '8ecae4eb908das88b4feb3db14' --edge-ip 'localhost' --edge-id 'some-edge' --edge-cookie 'sd1474594aafefds4V42Ebt'
 
 Options (* indicates it is required):
         --platform-ip string       [ENTER YOUR DESCRIPTION HERE]
