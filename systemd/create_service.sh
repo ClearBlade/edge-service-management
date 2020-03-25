@@ -7,7 +7,7 @@ function usage() {
   local invalid_option=$3
   local invalid_argument=$4
 
-  local help="Usage: ./create_edge_service.sh [OPTIONS]
+  local help="Usage: ./create_service.sh [OPTIONS]
 
 Used to create a ssystemd script to startup and destroy a binary
 
@@ -16,6 +16,13 @@ Assumptions:
 TODO: Run it as a user, right now it runs as root.
 
 Notes:
+
+OS supporting systemd as of March 25, 2020
+Fedora 
+RHEL 7 & later(mostly)
+CentOS 7 & later(mostly)
+Ubuntu 15.04 & later(mostly)
+Debian 7 and Debian 8 and later(mostly)
 
 
 Example: `./create_service.sh --display-name "ClearBlade Edge Service" --service-name "clearblade_edge" --params "-config=/etc/clearblade/config.toml" --prog "/usr/local/bin/edge"`
@@ -53,7 +60,7 @@ Options (* indicates it is required):
   return
 }
 
-ALL_ARGS=("service_display_name" "service_name" "params" "prog" "reset_db" "lib_folder" )
+ALL_ARGS=("service_display_name" "service_name" "params" "bin_path" )
 REQ_ARGS=("service_display_name" "service_name" )
 
 # get command line arguments
@@ -81,14 +88,6 @@ case $key in
     --prog)
     bin_path="$2"
     shift 2
-    ;;
-    --lib-folder)
-    lib_folder="$2"
-    shift 2
-    ;;
-    --reset-db)
-    reset_db="true"
-    shift
     ;;
     *)
     usage "" "" "$1"
@@ -146,7 +145,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-ExecStart=$BIN_PATH $params
+ExecStart=$bin_path $params
 Restart=always
 TimeoutSec=30
 RestartSec=30
