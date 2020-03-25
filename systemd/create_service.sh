@@ -124,8 +124,6 @@ for i in "${ALL_ARGS[@]}"; do
 done
 
 echo -e "\n----- $((++j)). Setting Configurations-----\n"
-
-#---------Systemd Configuration---------
 SYSTEMD_PATH="/lib/systemd/system"
 
 echo -e "\n----- $((++j)). Configuration Check-----\n"
@@ -161,15 +159,14 @@ WantedBy=multi-user.target
 EOF
 
 echo -e "\n----- $((++j)). Placing service in systemd folder-----\n"
-
 sudo mv "$service_name" "$SYSTEMD_PATH"
 
 echo -e "\n----- $((++j)). Setting Startup Options-----\n"
-# systemd reload so that it no longer attempts to reference old versions.
 sudo systemctl daemon-reload
 sudo systemctl enable "$service_name"
 
 echo -e "\n----- $((++j)). Starting the service-----\n"
 sudo systemctl start "$service_name"
+
 echo -e "\n----- $((++j)). Use  'sudo systemctl status $service_name' for status-----\n"
 sudo systemctl status $service_name
