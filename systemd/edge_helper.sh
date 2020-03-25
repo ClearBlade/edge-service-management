@@ -64,8 +64,8 @@ Options (* indicates it is required):
   return
 }
 
-ALL_ARGS=("service_display_name" "service_name" "params" "prog" "reset_db" "lib_folder" )
-REQ_ARGS=("service_display_name" "service_name" )
+ALL_ARGS=("reset_db" "lib_folder" )
+REQ_ARGS=("lib_folder" )
 
 # get command line arguments
 while [[ $# -gt 0 ]]
@@ -76,22 +76,6 @@ case $key in
     -h|--help)
     usage 1
     exit
-    ;;
-    --display-name)
-    service_display_name="$2"
-    shift 2
-    ;;
-    --service-name)
-    service_name="$2"
-    shift 2
-    ;;
-    --params)
-    params="$2"
-    shift 2
-    ;;
-    --prog)
-    bin_path="$2"
-    shift 2
     ;;
     --lib-folder)
     lib_folder="$2"
@@ -134,66 +118,8 @@ for i in "${ALL_ARGS[@]}"; do
   echo "$i:\"$var_val\""
 done
 
-echo -e "\n----- $((++j)). Setting Configurations-----\n"
-#---------Edge Version---------
-EDGE_CONFIG_FILE=${config_file-"/etc/clearblade/config.toml"}
-BIN_PATH=${bin_path-"/usr/local/bin/edge"}
-#service_name="clearblade.service"
-#service_display_name="ClearBlade Edge Service"
-default_log_file="/var/log/edge.log"
 
-VARPATH=${lib_folder-"/var/lib/clearblade"}
+VARPATH="/var/lib/clearblade"
 EDGEDBPATH=$VARPATH/db/edge.db
 ADAPTERS_ROOT_DIR=$VARPATH
-#---------Systemd Configuration---------
-SYSTEMD_PATH="/lib/systemd/system"
-RELEASE=""
-PARAMS=${params-"-config=$EDGE_CONFIG_FILE"}
-
-echo -e "\n----- $((++j)). Configuration Check-----\n"
-echo "Systemd Path: $SYSTEMD_PATH"
-echo "Systemd Service Name: $service_name"
-echo "Systemd Service Description: $service_display_name"
-
-echo -e "\n----- $((++j)). Cleaning old systemd services and binaries-----\n"
-sudo systemctl stop "$service_name"
-sudo systemctl disable "$service_name"
-sudo rm "$SYSTEMD_PATH/$service_name"
-sudo rm -rf "$service_name"
-
-[[ -z "$reset_db" ]] && rm -rf "$EDGEDBPATH"
-
-echo -e "\n----- $((++j)). Creating clearblade service-----"
-
-sudo cat >$service_name <<EOF
-[Unit]
-Description=$service_display_name Version: $RELEASE
-After=network.target
-[Service]
-Type=simple
-User=root
-ExecStart=$BIN_PATH $PARAMS
-Restart=always
-TimeoutSec=30
-RestartSec=30
-StartLimitInterval=350
-StartLimitBurst=10
-
-[Install]
-WantedBy=multi-user.target
-
-EOF
-
-echo -e "\n----- $((++j)). Placing service in systemd folder-----\n"
-
-sudo mv "$service_name" "$SYSTEMD_PATH"
-
-echo -e "\n----- $((++j)). Setting Startup Options-----\n"
-# systemd reload so that it no longer attempts to reference old versions.
-sudo systemctl daemon-reload
-sudo systemctl enable "$service_name"
-
-echo -e "\n----- $((++j)). Starting the service-----\n"
-sudo systemctl start "$service_name"
-echo -e "\n----- $((++j)). Use  'sudo systemctl status $service_name' for status; Default log file: $default_log_file -----\n"
-sudo systemctl status $service_name
+#[[ -z "$reset_db" ]] && rm -rf "$EDGEDBPATH"
