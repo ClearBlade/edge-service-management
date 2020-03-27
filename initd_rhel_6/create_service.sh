@@ -21,14 +21,14 @@ Notes:
 - Stores db in /var/lib/clearblade/
 - Stores logs in /var/log/edge.log
 - Stores Adapters in /var/lib/adapters
-- Add/Del enable/disables the serivice using `chkconfig` command provided by `rhel 6.0`
-- The init service uses `daemon` command
+- Add/Del enable/disables the serivice using 'chkconfig' command provided by 'rhel 6.0'
+- The init service uses 'daemon' command
 - Tested for: Linux version 2.6.32-754.27.1.el6.x86_64
 
 Attention: 
 This setup script wipes all the existing services|databases|adapters|
 
-Example: `./create_service.sh --service-name "clearblade_edge" --service-description "ClearBlade Edge Service" --params "-config=/etc/clearblade/config.toml" --prog "/usr/local/bin/edge"`
+Example: `./create_service.sh --service-name "clearblade_edge" --service-description "ClearBlade Edge Service" --params "-config=/etc/clearblade/config.toml" --prog "/usr/local/bin/edge" -log-file "/var/log/edge.log"`
 
 Options (* indicates it is required):
       * --service-description string      Long description of the Service Name
@@ -65,8 +65,8 @@ Options (* indicates it is required):
   return
 }
 
-ALL_ARGS=("service_description" "service_name" "params" "bin_path" "lib_folder" )
-REQ_ARGS=("service_description" "service_name" "bin_path" )
+ALL_ARGS=("service_description" "service_name" "params" "bin_path" "lib_folder" "log_file" )
+REQ_ARGS=("service_description" "service_name" "bin_path" "log_file" )
 
 # get command line arguments
 while [[ $# -gt 0 ]]
@@ -96,6 +96,10 @@ case $key in
     ;;
     --lib-folder)
     lib_folder="$2"
+    shift 2
+    ;;
+    --log-file)
+    log_file="$2"
     shift 2
     ;;
     *)
@@ -137,8 +141,6 @@ done
 #---------Init.d Configuration & edge defaults---------
 INITDPATH="/etc/init.d"
 INITDDEFAULTPATH="/etc/default"
-
-VARPATH=${lib_folder-"/var/lib/clearblade"}
 
 #---------Check Init.d Configuration---------
 echo -e "\n----- $((++j)). init.d config check------\n"
@@ -183,7 +185,7 @@ lockfile=/var/lock/subsys/$service_name
 
 start() {
     echo -ne "Starting $service_description: "
-    daemon \$PROG_BIN \$params & 
+    daemon \$PROG_BIN \$params &>> $log_file & 
     retval=\$?
     if [ \$retval -eq 0 ]; then
           touch \$lockfile
